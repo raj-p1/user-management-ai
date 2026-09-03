@@ -1,13 +1,16 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect } from "react";
+import getUsers from "../userApi";
+import UserForm from "./UserForm";
 export default function UserManagement() {
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
     const [email, setEmail] = useState("");
-    const [role, setRole] = useState("all");
+    const [role, setRole] = useState("");
     const [selectedRole, setSelectedRole] = useState("all");
     const [age, setAge] = useState("");
-    const [sorting, setSorting] = useState("all");
+    const [sorting, setSorting] = useState("default");
     const [users, setUsers] = useState([]);
+    const [availableRoles, setAvailableRoles] = useState([]);
     const [editUserId, setEditUserId] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
@@ -17,14 +20,11 @@ export default function UserManagement() {
     async function fetchUsers(signal) {
         try {
             setError("");
-            const res = await fetch("https://dummyjson.com/users", {
-                signal
-            })
-            if (!res.ok) {
-                throw new Error("Failed to fetch users.");
-            }
-            const data = await res.json();
-            setUsers(data.users);
+            const data = await getUsers(signal);
+            setUsers(data);
+            setAvailableRoles([
+                ...new Set(data.map(user => user.role))
+            ]);
         }
         catch (error) {
             if (error.name !== "AbortError") {
@@ -47,7 +47,7 @@ export default function UserManagement() {
 
     function handleAddUser(e) {
         e.preventDefault();
-        if (firstName.trim() === "" || lastName.trim() === "" || email.trim() === "" || !email.includes("@") || role === "all" || age.trim() === "" || Number(age) < 18 || Number(age) > 100) return;
+        if (firstName.trim() === "" || lastName.trim() === "" || email.trim() === "" || !email.includes("@") || role === "" || age.trim() === "" || Number(age) < 18 || Number(age) > 100) return;
         if (editUserId !== null) {
             setUsers(prev => prev.map((currentUser) => {
                 if (currentUser.id === editUserId) {
@@ -79,7 +79,7 @@ export default function UserManagement() {
         setLastName("");
         setEmail("");
         setAge("");
-        setRole("all");
+        setRole("");
         setShowForm(false);
     };
     function handleDeleteUser(id) {
@@ -91,7 +91,7 @@ export default function UserManagement() {
         setFirstName(updatedUser.firstName);
         setLastName(updatedUser.lastName);
         setEmail(updatedUser.email);
-        setAge(updatedUser.age);
+        setAge(String(updatedUser.age));
         setRole(updatedUser.role);
         setEditUserId(id);
         setShowForm(true);
@@ -101,14 +101,10 @@ export default function UserManagement() {
         setLastName("");
         setEmail("");
         setAge("");
-        setRole("all");
+        setRole("");
         setEditUserId(null);
         setShowForm(false);
     }
-
-    const roles = [
-        ...new Set(users.map(user => user.role))
-    ]
 
     const filteredUsers = users.filter((user) => {
         const matchesSearch = user.firstName
@@ -153,12 +149,12 @@ export default function UserManagement() {
                 />
                 <select value={selectedRole} onChange={e => setSelectedRole(e.target.value)}>
                     <option value="all">All</option>
-                    {roles.map(userRole => (
+                    {availableRoles.map(userRole => (
                         <option key={userRole} value={userRole}>{userRole.toUpperCase()}</option>
                     ))}
                 </select>
                 <select value={sorting} onChange={e => setSorting(e.target.value)}>
-                    <option value="all">All</option>
+                    <option value="default">Default</option>
                     <option value="name a-z">Name A-Z</option>
                     <option value="name z-a">Name Z-A</option>
                     <option value="age low-high">Age Low-High</option>
@@ -169,43 +165,22 @@ export default function UserManagement() {
             {error && (<p>Error: {error}</p>)}
             <button onClick={() => setShowForm(!showForm)}>{showForm ? "Hide Form" : "Add User"}</button>
             {showForm && (
-                <form onSubmit={handleAddUser}>
-                    <h2>{editUserId !== null ? "Edit User" : "Add New User"}</h2>
-                    <input
-                        type="text"
-                        placeholder="First Name"
-                        value={firstName}
-                        onChange={e => setFirstName(e.target.value)}
-                    />
-                    <input
-                        type="text"
-                        placeholder="Last Name"
-                        value={lastName}
-                        onChange={e => setLastName(e.target.value)}
-                    />
-                    <input
-                        type="email"
-                        placeholder="Email"
-                        value={email}
-                        onChange={e => setEmail(e.target.value)}
-                    />
-                    <input
-                        type="number"
-                        placeholder="Age"
-                        value={age}
-                        onChange={e => setAge(e.target.value)}
-                    />
-                    <select
-                        value={role}
-                        onChange={e => setRole(e.target.value)}
-                    >
-                        {roles.map(role => (
-                            <option key={role} value={role}>{role.toUpperCase()}</option>
-                        ))}
-                    </select>
-                    <button type="submit">{editUserId !== null ? "Edit User" : "Add User"}</button>
-                    <button type="button" onClick={handleCancelUser}>Cancel</button>
-                </form>
+                <UserForm
+                    firstName={firstName}
+                    setFirstName={setFirstName}
+                    lastName={lastName}
+                    setLastName={setLastName}
+                    email={email}
+                    setEmail={setEmail}
+                    age={age}
+                    setAge={setAge}
+                    role={role}
+                    setRole={setRole}
+                    availableRoles={availableRoles}
+                    onSubmit={handleAddUser}
+                    onCancel={handleCancelUser}
+                    isEditing={editUserId !== null}
+                />
             )}
             <div>
                 {sortedUsers.map((user) => (
