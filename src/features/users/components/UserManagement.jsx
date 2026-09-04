@@ -19,6 +19,7 @@ export default function UserManagement() {
     const [error, setError] = useState("");
     const [search, setSearch] = useState("");
     const [showForm, setShowForm] = useState(false);
+    const [formError, setFormError] = useState("");
 
     async function fetchUsers(signal) {
         try {
@@ -50,7 +51,23 @@ export default function UserManagement() {
 
     function handleAddUser(e) {
         e.preventDefault();
-        if (firstName.trim() === "" || lastName.trim() === "" || email.trim() === "" || !email.includes("@") || role === "" || age.trim() === "" || Number(age) < 18 || Number(age) > 100) return;
+        if (firstName.trim() === "" ||
+            lastName.trim() === "" ||
+            email.trim() === "" ||
+            role === "" ||
+            age.trim() === ""
+        ) {
+            setFormError("Please fill in all required fields.");
+            return;
+        }
+        if (!email.includes("@")) {
+            setFormError("Please enter a valid email address.");
+            return;
+        }
+        if (Number(age) < 18 || Number(age) > 100) {
+            setFormError("Age must be between 18 to 100.");
+            return;
+        }
         if (editUserId !== null) {
             setUsers(prev => prev.map((currentUser) => {
                 if (currentUser.id === editUserId) {
@@ -84,6 +101,7 @@ export default function UserManagement() {
         setAge("");
         setRole("");
         setShowForm(false);
+        setFormError("");
     };
     function handleDeleteUser(id) {
         setUsers(prev => prev.filter(currentUser => currentUser.id !== id));
@@ -140,7 +158,7 @@ export default function UserManagement() {
         }
     })
 
-const usersCount = sortedUsers.length;
+    const usersCount = sortedUsers.length;
     const adminCount = sortedUsers.filter(user => user.role === "admin").length;
     const moderatorCount = sortedUsers.filter(user => user.role === "moderator").length;
     const otherCount = usersCount - adminCount - moderatorCount;
@@ -198,12 +216,14 @@ const usersCount = sortedUsers.length;
             <button className="add-user-button" onClick={() => setShowForm(!showForm)}>{showForm ? "Hide Form" : "Add User"}</button>
             {showForm && (
                 <UserForm
+                    formError={formError}
                     firstName={firstName}
                     setFirstName={setFirstName}
                     lastName={lastName}
                     setLastName={setLastName}
                     email={email}
                     setEmail={setEmail}
+                    setFormError={setFormError}
                     age={age}
                     setAge={setAge}
                     role={role}
