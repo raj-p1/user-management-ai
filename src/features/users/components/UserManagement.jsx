@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import getUsers from "../userApi";
 import UserForm from "./UserForm";
+import UserList from "./UserList";
+
 export default function UserManagement() {
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
@@ -183,13 +185,11 @@ export default function UserManagement() {
                 />
             )}
             <div>
-                {sortedUsers.map((user) => (
-                    <div key={user.id}>
-                        {user.firstName} - {user.lastName} - {user.email} - {user.age} - {user.role.toUpperCase()}
-                        <button onClick={() => handleEditUser(user.id)}>Edit</button>
-                        <button onClick={() => handleDeleteUser(user.id)}>Delete</button>
-                    </div>
-                ))}
+                <UserList
+                    users={sortedUsers}
+                    onEdit={handleEditUser}
+                    onDelete={handleDeleteUser}
+                />
             </div>
         </div>
     )
