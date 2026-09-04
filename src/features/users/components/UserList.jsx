@@ -6,7 +6,7 @@ function UserList({
     onDelete,
 }) {
     return (
-        <div>
+        <div className="user-list">
             {users.map(user => (
                 <UserCard
                     key={user.id}

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import getUsers from "../userApi";
 import UserForm from "./UserForm";
 import UserList from "./UserList";
+import "./UserManagement.css"
 
 export default function UserManagement() {
     const [firstName, setFirstName] = useState("");
@@ -139,23 +140,52 @@ export default function UserManagement() {
         }
     })
 
+const usersCount = sortedUsers.length;
+    const adminCount = sortedUsers.filter(user => user.role === "admin").length;
+    const moderatorCount = sortedUsers.filter(user => user.role === "moderator").length;
+    const otherCount = usersCount - adminCount - moderatorCount;
+
     return (
-        <div>
-            <h1>User Management Dashboard</h1>
-            <div>
+        <div className="user-management">
+            <header className="dashboard-header">
+                <h1>User Management Dashboard</h1>
+                <p>Manage users, search, filter and sort your users.</p>
+            </header>
+            <div className="dashboard-stats">
+                <div className="stat-card">
+                    <span>Total Users</span>
+                    <strong>{usersCount}</strong>
+                </div>
+                <div className="stat-card">
+                    <span>Admins</span>
+                    <strong>{adminCount}</strong>
+                </div>
+
+                <div className="stat-card">
+                    <span>Moderators</span>
+                    <strong>{moderatorCount}</strong>
+                </div>
+
+                <div className="stat-card">
+                    <span>Others</span>
+                    <strong>{otherCount}</strong>
+                </div>
+            </div>
+            <div className="user-controls">
                 <input
+                    className="search-input"
                     type="text"
                     placeholder="Search user here..."
                     value={search}
                     onChange={e => setSearch(e.target.value)}
                 />
-                <select value={selectedRole} onChange={e => setSelectedRole(e.target.value)}>
+                <select className="filter-select" value={selectedRole} onChange={e => setSelectedRole(e.target.value)}>
                     <option value="all">All</option>
                     {availableRoles.map(userRole => (
                         <option key={userRole} value={userRole}>{userRole.toUpperCase()}</option>
                     ))}
                 </select>
-                <select value={sorting} onChange={e => setSorting(e.target.value)}>
+                <select className="filter-select" value={sorting} onChange={e => setSorting(e.target.value)}>
                     <option value="default">Default</option>
                     <option value="name a-z">Name A-Z</option>
                     <option value="name z-a">Name Z-A</option>
@@ -163,9 +193,9 @@ export default function UserManagement() {
                     <option value="age high-low">Age High-Low</option>
                 </select>
             </div>
-            {loading && (<p>Loading...</p>)}
-            {error && (<p>Error: {error}</p>)}
-            <button onClick={() => setShowForm(!showForm)}>{showForm ? "Hide Form" : "Add User"}</button>
+            {loading && (<p className="loading-message">Loading...</p>)}
+            {error && (<p className="error-message">Error: {error}</p>)}
+            <button className="add-user-button" onClick={() => setShowForm(!showForm)}>{showForm ? "Hide Form" : "Add User"}</button>
             {showForm && (
                 <UserForm
                     firstName={firstName}

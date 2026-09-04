@@ -15,34 +15,39 @@ function UserForm(
         isEditing,
     }) {
     return (
-        <div>
-            <form onSubmit={onSubmit}>
+        <div className="user-form-container">
+            <form className="user-form" onSubmit={onSubmit}>
                 <h2>{isEditing ? "Edit User" : "Add New User"}</h2>
                 <input
+                    className="form-input"
                     type="text"
                     placeholder="First Name"
                     value={firstName}
                     onChange={e => setFirstName(e.target.value)}
                 />
                 <input
+                    className="form-input"
                     type="text"
                     placeholder="Last Name"
                     value={lastName}
                     onChange={e => setLastName(e.target.value)}
                 />
                 <input
+                    className="form-input"
                     type="email"
                     placeholder="Email"
                     value={email}
                     onChange={e => setEmail(e.target.value)}
                 />
                 <input
+                    className="form-input"
                     type="number"
                     placeholder="Age"
                     value={age}
                     onChange={e => setAge(e.target.value)}
                 />
                 <select
+                    className="form-select"
                     value={role}
                     onChange={e => setRole(e.target.value)}
                 >
@@ -51,8 +56,8 @@ function UserForm(
                         <option key={role} value={role}>{role.toUpperCase()}</option>
                     ))}
                 </select>
-                <button type="submit">{isEditing ? "Edit User" : "Add User"}</button>
-                <button type="button" onClick={onCancel}>Cancel</button>
+                <button className="primary-button" type="submit">{isEditing ? "Edit User" : "Add User"}</button>
+                <button className="secondary-button" type="button" onClick={onCancel}>Cancel</button>
             </form>
         </div>
     )
