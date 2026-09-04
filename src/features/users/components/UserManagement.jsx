@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
-import getUsers from "../userApi";
+import { getUsers, addUser, updateUser, deleteUser } from "../userApi";
 import UserForm from "./UserForm";
 import UserList from "./UserList";
-import "./UserManagement.css"
+import "./UserManagement.css";
 
 export default function UserManagement() {
     const [firstName, setFirstName] = useState("");
@@ -49,7 +49,7 @@ export default function UserManagement() {
         }
     }, []);
 
-    function handleAddUser(e) {
+    async function handleAddUser(e) {
         e.preventDefault();
         if (firstName.trim() === "" ||
             lastName.trim() === "" ||
@@ -69,31 +69,46 @@ export default function UserManagement() {
             return;
         }
         if (editUserId !== null) {
-            setUsers(prev => prev.map((currentUser) => {
-                if (currentUser.id === editUserId) {
-                    return {
-                        ...currentUser,
-                        firstName,
-                        lastName,
-                        email,
-                        age: Number(age),
-                        role,
+            try {
+                const updatedUser = await updateUser({
+                    firstName,
+                    lastName,
+                    email,
+                    age: Number(age),
+                    role,
+                },
+                    editUserId
+                );
+                setUsers(prev => prev.map((currentUser) => {
+                    if (currentUser.id === editUserId) {
+                        return updatedUser;
                     }
-                }
-                return currentUser;
-            }))
-            setEditUserId(null);
+                    return currentUser;
+                }))
+                setEditUserId(null);
+            }
+            catch (error) {
+                console.error("Error: ", error);
+                setFormError("Failed to edit user. Please try again.");
+                return;
+            }
         }
         else {
-            const newUser = {
-                id: Date.now(),
-                firstName,
-                lastName,
-                email,
-                age: Number(age),
-                role,
+            try {
+                const createdUser = await addUser({
+                    firstName,
+                    lastName,
+                    email,
+                    age: Number(age),
+                    role,
+                });
+                setUsers(prev => [...prev, createdUser]);
             }
-            setUsers(prev => [...prev, newUser]);
+            catch (error) {
+                console.error("Error: ", error);
+                setFormError("Failed to create user. Please try again.");
+                return;
+            }
         }
         setFirstName("");
         setLastName("");
@@ -103,8 +118,16 @@ export default function UserManagement() {
         setShowForm(false);
         setFormError("");
     };
-    function handleDeleteUser(id) {
-        setUsers(prev => prev.filter(currentUser => currentUser.id !== id));
+    async function handleDeleteUser(id) {
+        try {
+            await deleteUser(id);
+            setUsers(prev => prev.filter(currentUser => currentUser.id !== id));
+        }
+        catch (error) {
+            console.error("Error: ", error);
+            setFormError("Failed to delete user. Please try again.");
+            return;
+        }
     };
     function handleEditUser(id) {
         const updatedUser = users.find(currentUser => currentUser.id === id);
