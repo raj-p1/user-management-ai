@@ -1,16 +1,18 @@
+const BASE_URL = "http://localhost:5000/api/users";
+
 async function getUsers(signal) {
-  const res = await fetch("https://dummyjson.com/users", {
+  const res = await fetch(BASE_URL, {
     signal,
   });
   if (!res.ok) {
     throw new Error("Failed to fetch users.");
   }
   const data = await res.json();
-  return data.users;
+  return data;
 }
 
 async function addUser(userData) {
-  const res = await fetch("https://dummyjson.com/users/add", {
+  const res = await fetch(BASE_URL, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -24,7 +26,7 @@ async function addUser(userData) {
 }
 
 async function updateUser(userData, id) {
-  const res = await fetch(`https://dummyjson.com/users/${id}`, {
+  const res = await fetch(`${BASE_URL}/${id}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
@@ -38,7 +40,7 @@ async function updateUser(userData, id) {
 }
 
 async function deleteUser(id) {
-  const res = await fetch(`https://dummyjson.com/users/${id}`, {
+  const res = await fetch(`${BASE_URL}/${id}`, {
     method: "DELETE",
   });
   if (!res.ok) {

@@ -16,13 +16,13 @@ function UserCard({
             <div className="user-actions">
                 <button
                     className="edit-button"
-                    onClick={() => onEdit(user.id)}
+                    onClick={() => onEdit(user._id)}
                 >
                     Edit
                 </button>
                 <button
                     className="delete-button"
-                    onClick={() => onDelete(user.id)}
+                    onClick={() => onDelete(user._id)}
                 >
                     Delete
                 </button>

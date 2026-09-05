@@ -9,7 +9,7 @@ function UserList({
         <div className="user-list">
             {users.map(user => (
                 <UserCard
-                    key={user.id}
+                    key={user._id}
                     user={user}
                     onEdit={onEdit}
                     onDelete={onDelete}

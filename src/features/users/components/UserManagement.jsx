@@ -26,9 +26,7 @@ export default function UserManagement() {
             setError("");
             const data = await getUsers(signal);
             setUsers(data);
-            setAvailableRoles([
-                ...new Set(data.map(user => user.role))
-            ]);
+            setAvailableRoles(["admin", "moderator", "user"]);
         }
         catch (error) {
             if (error.name !== "AbortError") {
@@ -80,7 +78,7 @@ export default function UserManagement() {
                     editUserId
                 );
                 setUsers(prev => prev.map((currentUser) => {
-                    if (currentUser.id === editUserId) {
+                    if (currentUser._id === editUserId) {
                         return updatedUser;
                     }
                     return currentUser;
@@ -121,16 +119,15 @@ export default function UserManagement() {
     async function handleDeleteUser(id) {
         try {
             await deleteUser(id);
-            setUsers(prev => prev.filter(currentUser => currentUser.id !== id));
+            setUsers(prev => prev.filter(currentUser => currentUser._id !== id));
         }
         catch (error) {
             console.error("Error: ", error);
-            setFormError("Failed to delete user. Please try again.");
             return;
         }
     };
     function handleEditUser(id) {
-        const updatedUser = users.find(currentUser => currentUser.id === id);
+        const updatedUser = users.find(currentUser => currentUser._id === id);
         if (!updatedUser) return;
         setFirstName(updatedUser.firstName);
         setLastName(updatedUser.lastName);
@@ -150,7 +147,7 @@ export default function UserManagement() {
         setShowForm(false);
     }
 
-    const filteredUsers = users.filter((user) => {
+    const filteredUsers = users?.filter((user) => {
         const matchesSearch = user.firstName
             .toLowerCase()
             .includes(search.toLowerCase()) ||
